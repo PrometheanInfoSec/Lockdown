@@ -1,0 +1,233 @@
+import time
+import smtplib
+import imaplib
+import sys
+
+from splinter import Browser
+
+#Gmail account to listen for panic mail on
+mail_user = ""
+mail_pass = ""
+
+#panic phrase to listen for in body of email
+"""Please Change this"""
+panic_phrase = "help"
+
+#Array of accounts credentials.
+##Soon to be generated automatically from an encrypted file
+#Just hang in there for that functionality.
+creds = {}
+
+##Example creds entry
+# creds['google'] = ['mygmail@gmail.com','secretgmailpassword']
+##
+creds['twitter'] = None
+creds['facebook'] = None
+creds['google'] = None
+
+#New password to set all accounts to
+"""Please Change this"""
+#Or don't, I'm not your boss
+new_password = "Emergency!"
+
+#Number of seconds to wait between checks for panic in email
+WAIT_SECONDS = 10
+#Number of attempts to make 
+TRIES = 1
+
+class mail_listener:
+	user = ""
+	passwd = ""
+	panic = ""
+	
+	def __init__(self, user, passwd, panic):
+		self.user = user
+		self.passwd = passwd
+		self.panic = panic
+	
+	
+	def read(self):
+		
+		mail = imaplib.IMAP4_SSL('imap.gmail.com')
+		mail.login(self.user, self.passwd)
+		mail.list()
+		mail.select("inbox")
+		
+		result, data = mail.search(None, "(SUBJECT \"PANIC\")")
+		
+		ids = data[0]
+		id_list = ids.split()
+		try:
+			latest_email_id = id_list[-1]
+		except:
+			return None
+		result, data = mail.fetch(latest_email_id, "(RFC822)")
+		raw_email = data[0][1]
+		
+		
+		
+		if self.panic in raw_email:
+			return raw_email
+		
+		return None
+
+class google_account:
+	login = ""
+	panic = ""
+	user = ""
+
+	def __init__(self,user, login, panic):
+		self.user = user
+		self.login = login
+		self.panic = panic
+
+	def passwd(self):
+		if len(self.login) < 1 or len(self.panic) < 1 or len(self.user) < 1:
+			return false
+	
+		b = Browser()
+		b.visit("https://accounts.google.com")
+		b.fill('Email',self.user)
+		btn = b.find_by_id("next")
+		btn.click()
+		b.fill('Passwd',self.login)
+		btn = b.find_by_id("signIn")
+		btn.click()
+		b.visit("https://myaccount.google.com/security/signinoptions/password")
+		b.fill('Passwd',self.login)
+		btn = b.find_by_id("signIn")
+		btn.click()
+		p = b.find_by_css(".Hj").first
+		p.fill(self.panic)
+		p = b.find_by_css(".Hj")[1]
+		p.fill(self.panic)
+		btn = b.find_by_css(".Ya")
+		btn.click()
+		b.quit()
+		
+		
+		
+		
+class facebook_account:
+	user = ""
+	login = ""
+	panic = ""
+	
+	def __init__(self, user, login, panic):
+		self.user = user
+		self.login = login
+		self.panic = panic
+		
+	def passwd(self):
+		b = Browser()
+		b.driver.set_window_size(900,900)
+		b.visit("https://www.facebook.com")
+		b.fill("email",self.user)
+		b.fill("pass",self.login)
+		btn = b.find_by_value("Log In")
+		btn.click()
+		b.visit("https://www.facebook.com/settings")
+		btn = b.find_by_id("u_0_7")
+		btn.click()
+		b.fill("password_old", self.login)
+		b.fill("password_new", self.panic)
+		b.fill("password_confirm", self.panic)
+		btn = b.find_by_value("Save Changes")
+		btn.click()
+		b.quit()
+
+class twitter_account:
+	user = ""
+	login = ""
+	panic = ""
+	
+	def __init__(self, user, login, panic):
+		self.user = user
+		self.login = login
+		self.panic = panic
+		
+	def passwd(self):
+		b = Browser()
+		b.driver.set_window_size(900,900)
+		b.visit("https://twitter.com")
+		btn = b.find_by_css(".js-login")
+		btn.click()
+		b.find_by_id("signin-email").fill(self.user)
+		b.find_by_id("signin-password").fill(self.login)
+		btn = b.find_by_value("Log in")
+		btn.click()
+		b.visit("https://twitter.com/settings/password")
+		b.fill("current_password", self.login)
+		b.fill("user_password", self.panic)
+		b.fill("user_password_confirmation", self.panic)
+		
+		btn = b.find_by_text("Save changes")
+		btn.click()
+		b.quit()
+		
+#Not Yet Implemented
+class microsoft_account:
+	#Currently having some weird issues with this.
+	#Microsoft is weird about access to this app
+	user = ""
+	login = ""
+	panic = ""
+	
+	def __init__(self, user, login, panic):
+		raise NotImplementedError("Microsoft Account, Module Not Yet Implemented")
+	
+		self.user = user	
+		self.login = login
+		self.panic = panic
+	
+	def passwd(self):
+		if len(self.login) < 1 or len(self.panic) < 1 or len(self.user) < 1:
+			return false
+			
+		b = Browser()
+		b.visit("https://login.live.com")
+		#e = b.find_by_id("idDiv_PWD_UsernameExample")
+		b.fill("loginfmt",self.user)
+		b.fill("passwd",self.login)
+		b.driver.set_window_size(900,900)
+		btn = b.find_by_value("Sign in")
+		btn.mouse_over()
+		btn.double_click()
+		b.visit("https://account.live.com/password/change?mkt=en-US")
+		b.quit()
+
+
+def trigger():
+	if creds['twitter'] is not None:
+		t = twitter_account(creds['twitter'][0],creds['twitter'][1],new_password)
+		t.passwd()
+			
+	if creds['facebook'] is not None:
+		f = facebook_account(creds['facebook'][0],creds['facebook'][1],new_password)
+		f.passwd()
+			
+	if creds['google'] is not None:
+		g = google_account(creds['google'][0],creds['google'][1],new_password)
+		g.passwd()		
+
+		
+if __name__ == "__main__":
+	while True:
+		l = mail_listener(mail_user, mail_pass, panic_phrase)
+		parse = l.read()
+	
+	### Right here is where I plan to implement cryptographic storage for creds
+	##stay tuned.  That will all be coming shortly.  But I have to be up at six am.
+	# - Ben
+	
+		if parse is not None:
+			trigger()
+			TRIES -= 1
+			if TRIES < 1:
+				sys.exit(0)
+	
+		time.sleep(WAIT_SECONDS)
+		
+	
+	
+	
