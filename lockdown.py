@@ -20,6 +20,10 @@ creds = {}
 
 ##Example creds entry
 # creds['google'] = ['mygmail@gmail.com','secretgmailpassword']
+# You can add multiple accounts to each service type by building a list
+# within a list in the same format as above
+# Example is
+# creds['google'] = [['mygmail@gmail.com','pass'],['secondgmail@gmail.com','pass2']]
 ##
 creds['twitter'] = None
 creds['facebook'] = None
@@ -199,17 +203,31 @@ class microsoft_account:
 
 def trigger():
 	if creds['twitter'] is not None:
-		t = twitter_account(creds['twitter'][0],creds['twitter'][1],new_password)
-		t.passwd()
+		if type(creds['twitter'][0]) == str:
+			t = twitter_account(creds['twitter'][0],creds['twitter'][1],new_password)
+			t.passwd()
+		elif type(creds['twitter'][0]) == list:
+			for acc in creds['twitter']:
+				t = twitter_account(acc[0],acc[1],new_password)
+				t.passwd()
 			
 	if creds['facebook'] is not None:
-		f = facebook_account(creds['facebook'][0],creds['facebook'][1],new_password)
-		f.passwd()
+		if type(creds['facebook'][0]) == str:
+			f = facebook_account(creds['facebook'][0],creds['facebook'][1],new_password)
+			f.passwd()
+		elif type(creds['facebook'][0]) == list:
+			for acc in creds['facebook']:
+				f = facebook_account(acc[0],acc[1],new_password)
+				f.passwd()
 			
 	if creds['google'] is not None:
-		g = google_account(creds['google'][0],creds['google'][1],new_password)
-		g.passwd()		
-
+		if type(creds['google'][0]) == str:
+			g = google_account(creds['google'][0],creds['google'][1],new_password)
+			g.passwd()		
+		elif type(creds['google'][0]) == list:
+			for acc in creds['google']:
+				g = google_account(acc[0],acc[1],new_password)
+				g.passwd()
 		
 if __name__ == "__main__":
 	while True:
