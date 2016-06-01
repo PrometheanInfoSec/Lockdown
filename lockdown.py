@@ -32,6 +32,7 @@ creds['google'] = None
 #New password to set all accounts to
 """Please Change this"""
 #Or don't, I'm not your boss
+#Needs to be complex enough for Facebook to accept it.
 new_password = "Emergency!"
 
 #Number of seconds to wait between checks for panic in email
@@ -141,34 +142,34 @@ class facebook_account:
 		b.quit()
 
 class twitter_account:
-	user = ""
-	login = ""
-	panic = ""
-	
-	def __init__(self, user, login, panic):
-		self.user = user
-		self.login = login
-		self.panic = panic
+    user = ""
+    login = ""
+    panic = ""
+
+    def __init__(self, user, login, panic):
+        self.user = user
+        self.login = login
+        self.panic = panic
 		
-	def passwd(self):
-		b = Browser()
-		b.driver.set_window_size(900,900)
-		b.visit("https://twitter.com")
-		btn = b.find_by_css(".js-login")
-		btn.click()
-		b.find_by_id("signin-email").fill(self.user)
-		b.find_by_id("signin-password").fill(self.login)
-		btn = b.find_by_value("Log in")
-		btn.click()
-		b.visit("https://twitter.com/settings/password")
-		b.fill("current_password", self.login)
-		b.fill("user_password", self.panic)
-		b.fill("user_password_confirmation", self.panic)
-		
-		btn = b.find_by_text("Save changes")
-		btn.click()
-		b.quit()
-		
+    def passwd(self):
+        b = Browser()
+        b.driver.set_window_size(900,900)
+        b.visit("https://twitter.com")
+        btn = b.find_by_css(".js-login")
+        btn.click()
+        b.find_by_name("session[username_or_email]").fill(self.user)
+        b.find_by_name("session[password]").fill(self.login)
+        btn = b.find_by_value("Log in")
+        btn.click()
+        b.visit("https://twitter.com/settings/password")
+        b.fill("current_password", self.login)
+        b.fill("user_password", self.panic)
+        b.fill("user_password_confirmation", self.panic)
+
+        btn = b.find_by_text("Save changes")
+        btn.click()
+        b.quit()
+
 #Not Yet Implemented
 class microsoft_account:
 	#Currently having some weird issues with this.
