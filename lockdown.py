@@ -91,25 +91,28 @@ class google_account:
 			return false
 	
 		b = Browser()
-		b.visit("https://accounts.google.com")
-		b.fill('Email',self.user)
-		btn = b.find_by_id("next")
-		btn.click()
-		b.fill('Passwd',self.login)
-		btn = b.find_by_id("signIn")
-		btn.click()
-		b.visit("https://myaccount.google.com/security/signinoptions/password")
-		b.fill('Passwd',self.login)
-		btn = b.find_by_id("signIn")
-		btn.click()
-		p = b.find_by_css(".Hj").first
-		p.fill(self.panic)
-		p = b.find_by_css(".Hj")[1]
-		p.fill(self.panic)
-		btn = b.find_by_css(".Ya")
-		btn.click()
-		b.quit()
-		
+        b.driver.set_window_size(900,900)
+        try:
+		    b.visit("https://accounts.google.com")
+		    b.fill('Email',self.user)
+		    btn = b.find_by_id("next")
+		    btn.click()
+		    b.fill('Passwd',self.login)
+		    btn = b.find_by_id("signIn")
+		    btn.click()
+		    b.visit("https://myaccount.google.com/security/signinoptions/password")
+		    b.fill('Passwd',self.login)
+		    btn = b.find_by_id("signIn")
+		    btn.click()
+		    p = b.find_by_css(".Hj").first
+		    p.fill(self.panic)
+		    p = b.find_by_css(".Hj")[1]
+		    p.fill(self.panic)
+		    btn = b.find_by_css(".Ya")
+		    btn.click()
+		    b.quit()
+		except:
+            b.quit()
 		
 		
 		
@@ -126,20 +129,23 @@ class facebook_account:
 	def passwd(self):
 		b = Browser()
 		b.driver.set_window_size(900,900)
-		b.visit("https://www.facebook.com")
-		b.fill("email",self.user)
-		b.fill("pass",self.login)
-		btn = b.find_by_value("Log In")
-		btn.click()
-		b.visit("https://www.facebook.com/settings")
-		btn = b.find_by_id("u_0_7")
-		btn.click()
-		b.fill("password_old", self.login)
-		b.fill("password_new", self.panic)
-		b.fill("password_confirm", self.panic)
-		btn = b.find_by_value("Save Changes")
-		btn.click()
-		b.quit()
+        try:
+		    b.visit("https://www.facebook.com")
+		    b.fill("email",self.user)
+		    b.fill("pass",self.login)
+		    btn = b.find_by_value("Log In")
+		    btn.click()
+		    b.visit("https://www.facebook.com/settings")
+		    btn = b.find_by_id("u_0_7")
+		    btn.click()
+		    b.fill("password_old", self.login)
+		    b.fill("password_new", self.panic)
+		    b.fill("password_confirm", self.panic)
+		    btn = b.find_by_value("Save Changes")
+		    btn.click()
+		    b.quit()
+        except:
+            b.quit()
 
 class twitter_account:
     user = ""
@@ -154,21 +160,24 @@ class twitter_account:
     def passwd(self):
         b = Browser()
         b.driver.set_window_size(900,900)
-        b.visit("https://twitter.com")
-        btn = b.find_by_css(".js-login")
-        btn.click()
-        b.find_by_name("session[username_or_email]").fill(self.user)
-        b.find_by_name("session[password]").fill(self.login)
-        btn = b.find_by_value("Log in")
-        btn.click()
-        b.visit("https://twitter.com/settings/password")
-        b.fill("current_password", self.login)
-        b.fill("user_password", self.panic)
-        b.fill("user_password_confirmation", self.panic)
+        try:
+            b.visit("https://twitter.com")
+            btn = b.find_by_css(".js-login")
+            btn.click()
+            b.find_by_name("session[username_or_email]").fill(self.user)
+            b.find_by_name("session[password]").fill(self.login)
+            btn = b.find_by_value("Log in")
+            btn.click()
+            b.visit("https://twitter.com/settings/password")
+            b.fill("current_password", self.login)
+            b.fill("user_password", self.panic)
+            b.fill("user_password_confirmation", self.panic)
 
-        btn = b.find_by_text("Save changes")
-        btn.click()
-        b.quit()
+            btn = b.find_by_text("Save changes")
+            btn.click()
+            b.quit()
+        except:
+            b.quit()
 
 #Not Yet Implemented
 class microsoft_account:
@@ -246,7 +255,4 @@ if __name__ == "__main__":
 				sys.exit(0)
 	
 		time.sleep(WAIT_SECONDS)
-		
-	
-	
 	
