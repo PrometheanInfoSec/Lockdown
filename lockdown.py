@@ -91,8 +91,8 @@ class google_account:
 			return false
 	
 		b = Browser()
-        b.driver.set_window_size(900,900)
-        try:
+		b.driver.set_window_size(900,900)
+		try:
 		    b.visit("https://accounts.google.com")
 		    b.fill('Email',self.user)
 		    btn = b.find_by_id("next")
@@ -112,7 +112,7 @@ class google_account:
 		    btn.click()
 		    b.quit()
 		except:
-            b.quit()
+            	    b.quit()
 		
 		
 		
@@ -129,7 +129,7 @@ class facebook_account:
 	def passwd(self):
 		b = Browser()
 		b.driver.set_window_size(900,900)
-        try:
+		try:
 		    b.visit("https://www.facebook.com")
 		    b.fill("email",self.user)
 		    b.fill("pass",self.login)
@@ -144,8 +144,8 @@ class facebook_account:
 		    btn = b.find_by_value("Save Changes")
 		    btn.click()
 		    b.quit()
-        except:
-            b.quit()
+		except:
+            	    b.quit()
 
 class twitter_account:
     user = ""
@@ -160,7 +160,7 @@ class twitter_account:
     def passwd(self):
         b = Browser()
         b.driver.set_window_size(900,900)
-        try:
+	try:
             b.visit("https://twitter.com")
             btn = b.find_by_css(".js-login")
             btn.click()
@@ -176,7 +176,7 @@ class twitter_account:
             btn = b.find_by_text("Save changes")
             btn.click()
             b.quit()
-        except:
+	except:
             b.quit()
 
 #Not Yet Implemented
