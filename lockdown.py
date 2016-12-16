@@ -2,6 +2,7 @@ import time
 import smtplib
 import imaplib
 import sys
+import traceback
 
 from splinter import Browser
 
@@ -9,9 +10,13 @@ from splinter import Browser
 mail_user = ""
 mail_pass = ""
 
+
+#Panic subject
+panic_subject = "panic"
+
 #panic phrase to listen for in body of email
 """Please Change this"""
-panic_phrase = "help"
+panic_phrase = "panic"
 
 #Array of accounts credentials.
 ##Soon to be generated automatically from an encrypted file
@@ -40,6 +45,27 @@ WAIT_SECONDS = 10
 #Number of attempts to make 
 TRIES = 1
 
+#Lag permit for page loads in seconds
+INV=0.5
+
+def poll_for(value, b, attempts=5):
+	btn = None
+	for i in range(attempts):
+		btn = b.find_by_css(value).first
+		if btn is not None:
+			break
+		time.sleep(INV)
+	return btn
+
+def poll_fill(name, value, b, attempts=5):
+	for i in range(attempts):
+		try:
+			b.fill(name, value)
+			return
+		except:
+			time.sleep(INV)
+			continue
+
 class mail_listener:
 	user = ""
 	passwd = ""
@@ -58,7 +84,7 @@ class mail_listener:
 		mail.list()
 		mail.select("inbox")
 		
-		result, data = mail.search(None, "(SUBJECT \"PANIC\")")
+		result, data = mail.search(None, "(SUBJECT \"%s\")" % panic_subject)
 		
 		ids = data[0]
 		id_list = ids.split()
@@ -93,26 +119,45 @@ class google_account:
 		b = Browser()
 		b.driver.set_window_size(900,900)
 		try:
-		    b.visit("https://accounts.google.com")
+		    b.visit("https://accounts.google.com/ServiceLogin?service=accountsettings")
 		    b.fill('Email',self.user)
 		    btn = b.find_by_id("next")
 		    btn.click()
 		    b.fill('Passwd',self.login)
+		    btn = poll_for("#signIn", b)
+		    
+		    btn.click()
+		    
+		    b.visit("https://myaccount.google.com/security#signin")
+		    btn = b.find_by_css(".vkq40d").first
+		    if not btn == None:
+			print "not none"
+			btn.click()
+			poll_fill('Email',self.user, b)
+                        btn = b.find_by_id("next")
+                        btn.click()
+                        poll_fill('Passwd',self.login, b)
+                        btn = b.find_by_id("signIn")
+                        btn.click()
+
+		    time.sleep(INV)
+		    btn = poll_for(".TCRTM", b)
+		    btn.click()
+		    poll_fill('Passwd',self.login, b)
 		    btn = b.find_by_id("signIn")
 		    btn.click()
-		    b.visit("https://myaccount.google.com/security/signinoptions/password")
-		    b.fill('Passwd',self.login)
-		    btn = b.find_by_id("signIn")
-		    btn.click()
-		    p = b.find_by_css(".Hj").first
+		    p = poll_for(".Hj", b)
 		    p.fill(self.panic)
 		    p = b.find_by_css(".Hj")[1]
 		    p.fill(self.panic)
 		    btn = b.find_by_css(".Ya")
 		    btn.click()
+		    time.sleep(INV*5)
 		    b.quit()
 		except:
-            	    b.quit()
+		    traceback.print_exc(file=sys.stdout)
+            	    raw_input("Something went wrong...")
+		    b.quit()
 		
 		
 		
