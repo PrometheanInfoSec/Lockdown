@@ -30,9 +30,9 @@ creds = {}
 # Example is
 # creds['google'] = [['mygmail@gmail.com','pass'],['secondgmail@gmail.com','pass2']]
 ##
-creds['twitter'] = None
-creds['facebook'] = None
 creds['google'] = None
+creds['facebook'] = None
+creds['twitter'] = None
 
 #New password to set all accounts to
 """Please Change this"""
@@ -51,7 +51,10 @@ INV=0.5
 def poll_for(value, b, attempts=5):
 	btn = None
 	for i in range(attempts):
-		btn = b.find_by_css(value).first
+		try:
+			btn = b.find_by_css(value).first
+		except:
+			btn = None
 		if btn is not None:
 			break
 		time.sleep(INV)
@@ -106,6 +109,8 @@ class google_account:
 	login = ""
 	panic = ""
 	user = ""
+	attempts = 0
+	max_attempts = 5
 
 	def __init__(self,user, login, panic):
 		self.user = user
@@ -158,6 +163,9 @@ class google_account:
 		    traceback.print_exc(file=sys.stdout)
             	    raw_input("Something went wrong...")
 		    b.quit()
+		    if self.attempts < self.max_attempts:
+		        self.attempts += 1
+		        self.passwd()
 		
 		
 		
